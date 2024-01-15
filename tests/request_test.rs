@@ -1,0 +1,24 @@
+use dns;
+use dns::{BytePacketBuffer, DnsPacket};
+
+#[test]
+fn simple_dns_query() {
+    // the query `dig NS @8.8.8.8 com`
+    let mut query: Vec<u8> = vec![
+        0x5a, 0xbd, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x01, 0x03, 0x63, 0x6f, 0x6d, 0x00, 0x00, 0x02, 0x00,
+        0x01, 0x00, 0x00, 0x29, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x0c, 0x00, 0x0a, 0x00, 0x08, 0xfe, 0x2c, 0x7b, 0x94,
+        0x2a, 0xd4, 0xd0, 0x5c
+    ];
+    let mut query_padding = vec![0; 512 - query.len()];
+    query.append(&mut query_padding);
+    let mut query_bytes = [0; 512];
+    query_bytes.copy_from_slice(&query);
+    let mut query_buffer = BytePacketBuffer {
+        buf: query_bytes,
+        pos: 0,
+    };
+    let query_dns_packet = DnsPacket::from_buffer(&mut query_buffer);
+    assert!(query_dns_packet.is_ok());
+}
